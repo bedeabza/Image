@@ -14,5 +14,7 @@ $image = new Image('somefile.jpg');
 Resizing works in 3 ways, depending on what mode is specified when executing resize():
 
 1) RESIZE_TYPE_STRICT 	- resizes the image to the exact specified dimensions
+
 2) RESIZE_TYPE_RATIO 	- takes into account the aspect ratio of the image and it will be resized to fit the specified dimensions
+
 3) RESIZE_TYPE_CROP 	- First crops the image so that aspect ratio of the target size is met, then the cropped image is resized to the specified dimensions (default)
