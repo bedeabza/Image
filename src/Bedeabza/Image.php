@@ -9,7 +9,9 @@
  * @author 		Dragos Badea	<bedeabza@gmail.com>
  */
 
-class Ws_Image
+namespace Bedeabza;
+
+class Image
 {
 	/**
 	 * Resize to the exact specified dimensions
@@ -55,7 +57,7 @@ class Ws_Image
 	/**
 	 * @var string
 	 */
-    protected $_fileName = null;
+	protected $_fileName = null;
 
 	/**
 	 * @var string
@@ -88,6 +90,9 @@ class Ws_Image
 	 */
 	public function __construct($fileName)
 	{
+		if(!function_exists('gd_info'))
+			$this->error('GD');
+
 		if(!file_exists($fileName))
 			$this->error('NotExists', $fileName);
 
@@ -196,7 +201,7 @@ class Ws_Image
 	 */
 	public function watermark($fileName, $position = self::WM_POS_BOTTOM_RIGHT, $width = null, $height = null)
 	{
-		$watermark = new Ws_Image($fileName);
+		$watermark = new Image($fileName);
 		if($width || $height)
 			$watermark->resize($width, $height, self::RESIZE_TYPE_STRICT);
 
@@ -291,9 +296,6 @@ class Ws_Image
 	protected function _createImageFromFile()
 	{
 		$function = 'imagecreatefrom'.$this->_format;
-		if(!function_exists($function))
-			$this->error('GD');
-
 		return $function($this->_fileName);
 	}
 
@@ -334,7 +336,7 @@ class Ws_Image
 	}
 
 	/**
-	 * @throws Zend_Exception
+	 * @throws \Exception
 	 * @param string $code
 	 * @param array $params
 	 * @return void
@@ -344,7 +346,7 @@ class Ws_Image
 		if(!is_array($params))
 			$params = array($params);
 
-		throw new Zend_Exception(vsprintf($this->_errors[$code], $params));
+		throw new \Exception(vsprintf($this->_errors[$code], $params));
 	}
 
 	/**
@@ -361,6 +363,7 @@ class Ws_Image
 	/**
 	 * @param string $name
 	 * @param int $expires in seconds
+	 * @param int $lastMod in seconds
 	 * @return void
 	 */
 	public function sendHeaders($name = '', $expires = 0, $lastMod = null)
@@ -399,10 +402,10 @@ class Ws_Image
 
 	/**
 	 * @param string $fileName
-	 * @param  $quality
+	 * @param int $quality
 	 * @return void
 	 */
-	protected function _execute($fileName = null, $quality)
+	protected function _execute($fileName = null, $quality = 75)
 	{
 		$function = 'image'.$this->_format;
 		$function($this->_sourceImage, $fileName, $this->_getQuality($quality));

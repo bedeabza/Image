@@ -1,9 +1,7 @@
 <?php
-/**
- * Created by JetBrains PhpStorm.
- * User: Dragos
- * Date: 3/25/11
- * Time: 12:52 PM
- * To change this template use File | Settings | File Templates.
- */
+require_once('Bootstrap.php');
 
+$image = new \Bedeabza\Image(dirname(__FILE__).'/images/demo.jpg');
+$image->resize(200, 200, \Bedeabza\Image::RESIZE_TYPE_CROP);
+$image->watermark(dirname(__FILE__).'/images/watermark.png', \Bedeabza\Image::WM_POS_CENTER);
+$image->render();
