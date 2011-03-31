@@ -1,4 +1,10 @@
 <?php
+/**
+ * Bootstrap file for the demo
+ * 
+ * Initializes error reporting and include path. Also includes the Image class
+ */
+
 error_reporting(E_ALL^E_NOTICE);
 ini_set('display_errors', 'On');
 
