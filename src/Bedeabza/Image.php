@@ -56,6 +56,7 @@ class Image
 		'GD'                => 'The PHP extension GD is not enabled',
 		'WidthHeight'       => 'Please specify at least one of the width and height parameters',
 		'CropDimExceed'     => 'The cropping dimensions must be smaller than the original ones',
+		'InvalidResource'   => 'Invalid image resource provided',
 	);
 
 	/**
@@ -95,32 +96,6 @@ class Image
 	{
 		$this->setSourceImage($fileName);
 	}
-
-    /**
-     * @param string $fileName
-     * @return void
-     */
-    public function setSourceImage($fileName)
-    {
-        if(!function_exists('gd_info'))
-            $this->error('GD');
-
-        if(!file_exists($fileName))
-            $this->error('NotExists', $fileName);
-
-        if(!is_readable($fileName))
-            $this->error('NotReadable', $fileName);
-
-        $this->originalSize    = getimagesize($fileName);
-        $this->format          = array_pop(explode('/', $this->originalSize['mime']));
-
-        if(!in_array($this->format, $this->acceptedFormats))
-            $this->error('Format', $this->format);
-
-        $this->fileName        = $fileName;
-        $this->sourceImage     = $this->createImageFromFile();
-        $this->workingImage    = $this->createImageFromFile();
-    }
 
 	/**
 	 * @param int $width
@@ -272,6 +247,32 @@ class Image
 		return $this->sourceImage;
 	}
 
+    /**
+     * @param string $fileName
+     * @return void
+     */
+    public function setSourceImage($fileName)
+    {
+        if(!function_exists('gd_info'))
+            $this->error('GD');
+
+        if(!file_exists($fileName))
+            $this->error('NotExists', $fileName);
+
+        if(!is_readable($fileName))
+            $this->error('NotReadable', $fileName);
+
+        $this->originalSize    = getimagesize($fileName);
+        $this->format          = array_pop(explode('/', $this->originalSize['mime']));
+
+        if(!in_array($this->format, $this->acceptedFormats))
+            $this->error('Format', $this->format);
+
+        $this->fileName        = $fileName;
+        $this->sourceImage     = $this->createImageFromFile();
+        $this->workingImage    = $this->createImageFromFile();
+    }
+
 	/**
 	 * @return resource
 	 */
@@ -279,6 +280,18 @@ class Image
 	{
 		return $this->workingImage;
 	}
+
+    /**
+     * @param resource $image
+     * @return void
+     */
+    public function setWorkingImage($image)
+    {
+        if(!is_resource($image))
+            $this->error('InvalidResource');
+
+        $this->workingImage = $image;
+    }
 
 	/**
 	 * @return int
