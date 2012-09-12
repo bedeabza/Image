@@ -87,29 +87,38 @@ class Image
 	protected $_originalSize = null;
 
 	/**
-     * @param $fileName
+     * @param string|null $fileName
      */
-	public function __construct($fileName)
+	public function __construct($fileName = null)
 	{
-		if(!function_exists('gd_info'))
-			$this->error('GD');
-
-		if(!file_exists($fileName))
-			$this->error('NotExists', $fileName);
-
-		if(!is_readable($fileName))
-			$this->error('NotReadable', $fileName);
-
-		$this->_originalSize    = getimagesize($fileName);
-		$this->_format          = array_pop(explode('/', $this->_originalSize['mime']));
-
-		if(!in_array($this->_format, $this->_acceptedFormats))
-			$this->error('Format', $this->_format);
-
-		$this->_fileName        = $fileName;
-		$this->_sourceImage     = $this->_createImageFromFile();
-		$this->_workingImage    = $this->_createImageFromFile();
+		$this->setSourceImage($fileName);
 	}
+
+    /**
+     * @param string $fileName
+     * @return void
+     */
+    public function setSourceImage($fileName)
+    {
+        if(!function_exists('gd_info'))
+            $this->error('GD');
+
+        if(!file_exists($fileName))
+            $this->error('NotExists', $fileName);
+
+        if(!is_readable($fileName))
+            $this->error('NotReadable', $fileName);
+
+        $this->_originalSize    = getimagesize($fileName);
+        $this->_format          = array_pop(explode('/', $this->_originalSize['mime']));
+
+        if(!in_array($this->_format, $this->_acceptedFormats))
+            $this->error('Format', $this->_format);
+
+        $this->_fileName        = $fileName;
+        $this->_sourceImage     = $this->_createImageFromFile();
+        $this->_workingImage    = $this->_createImageFromFile();
+    }
 
 	/**
 	 * @param int $width
