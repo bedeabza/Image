@@ -41,8 +41,10 @@ class Image
 
 	/**
 	 * Watermark offset from border
+     *
+     * @var int
 	 */
-	const WM_OFFSET                 = 15;
+	protected $_watermarkOffset = 15;
 
 	/**
 	 * @var array
@@ -204,6 +206,14 @@ class Image
 		$this->crop($x, $y, $width, $height);
 	}
 
+    /**
+     * @param int $offset
+     */
+    public function setWatermarkOffset($offset)
+    {
+        $this->_watermarkOffset = (int)$offset;
+    }
+
 	/**
 	 * @param int $position
 	 * @param string $fileName
@@ -222,19 +232,19 @@ class Image
 
 		switch($position){
 			case self::WM_POS_TOP_LEFT:
-		        $x = $y = self::WM_OFFSET;
+		        $x = $y = $this->_watermarkOffset;
 		        break;
 			case self::WM_POS_TOP_RIGHT:
-				$x = $this->_originalSize[0] - $watermark->getWidth() - self::WM_OFFSET;
-		        $y = self::WM_OFFSET;
+				$x = $this->_originalSize[0] - $watermark->getWidth() - $this->_watermarkOffset;
+		        $y = $this->_watermarkOffset;
 		        break;
 			case self::WM_POS_BOTTOM_RIGHT:
-		        $x = $this->_originalSize[0] - $watermark->getWidth() - self::WM_OFFSET;
-		        $y = $this->_originalSize[1] - $watermark->getHeight() - self::WM_OFFSET;
+		        $x = $this->_originalSize[0] - $watermark->getWidth() - $this->_watermarkOffset;
+		        $y = $this->_originalSize[1] - $watermark->getHeight() - $this->_watermarkOffset;
 		        break;
 			case self::WM_POS_BOTTOM_LEFT:
-				$x = $y = self::WM_OFFSET;
-		        $y = $this->_originalSize[1] - $watermark->getHeight() - self::WM_OFFSET;
+				$x = $y = $this->_watermarkOffset;
+		        $y = $this->_originalSize[1] - $watermark->getHeight() - $this->_watermarkOffset;
 		        break;
 			case self::WM_POS_CENTER:
 		        $x = ($this->_originalSize[0] - $watermark->getWidth()) / 2;
