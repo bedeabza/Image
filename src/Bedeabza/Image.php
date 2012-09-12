@@ -11,6 +11,8 @@
 
 namespace Bedeabza;
 
+use \Bedeabza\Image\Exception as ImageException;
+
 class Image
 {
 	/**
@@ -336,7 +338,7 @@ class Image
 	}
 
 	/**
-	 * @throws \Exception
+	 * @throws ImageException
 	 * @param string $code
 	 * @param array $params
 	 * @return void
@@ -346,7 +348,7 @@ class Image
 		if(!is_array($params))
 			$params = array($params);
 
-		throw new \Exception(vsprintf($this->_errors[$code], $params));
+		throw new ImageException(vsprintf($this->_errors[$code], $params));
 	}
 
 	/**
