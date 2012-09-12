@@ -394,7 +394,7 @@ class Image
 		$this->sourceImage = $this->createImage($width, $height);
 		imagecopy($this->sourceImage, $this->workingImage, 0, 0, 0, 0, $width, $height);
 		imagedestroy($this->workingImage);
-		$this->workingImage = null;
+		$this->workingImage = $this->sourceImage;
 
 		$this->originalSize[0] = $width;
 		$this->originalSize[1] = $height;
