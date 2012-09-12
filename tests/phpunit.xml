@@ -1,0 +1,8 @@
+<phpunit bootstrap="./Bootstrap.php" colors="false">
+    <testsuites>
+        <testsuite name="Bedeabza\ImageTest">
+            <directory>./Bedeabza</directory>
+            <exclude>./_files/</exclude>
+        </testsuite>
+    </testsuites>
+</phpunit>
