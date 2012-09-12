@@ -87,9 +87,8 @@ class Image
 	protected $_originalSize = null;
 
 	/**
-	 * @param string $fileName
-	 * @return void
-	 */
+     * @param $fileName
+     */
 	public function __construct($fileName)
 	{
 		if(!function_exists('gd_info'))
@@ -120,7 +119,9 @@ class Image
 	 */
 	public function resize($width = null, $height = null, $mode = self::RESIZE_TYPE_CROP)
 	{
-		list($width, $height) = $this->_calcDefaultDimensions($width, $height);
+		list($width, $height)   = $this->_calcDefaultDimensions($width, $height);
+        $cropAfter              = false;
+        $cropDimensions         = array();
 
 		if($mode != self::RESIZE_TYPE_STRICT){
 			//recalculate width and height if they exceed original dimensions
@@ -230,6 +231,10 @@ class Image
 		        $x = ($this->_originalSize[0] - $watermark->getWidth()) / 2;
 		        $y = ($this->_originalSize[1] - $watermark->getHeight()) / 2;
 		        break;
+            default:
+                $x = 0;
+                $y = 0;
+                break;
 		}
 
 		imagecopy($this->_workingImage, $this->_sourceImage, 0, 0, 0, 0, $this->_originalSize[0], $this->_originalSize[1]);
@@ -304,7 +309,7 @@ class Image
 	/**
 	 * @param int $width
 	 * @param int $height
-	 * @return void
+	 * @return resource
 	 */
 	protected function _createImage($width, $height)
 	{
@@ -394,9 +399,10 @@ class Image
 	}
 
 	/**
-	 * @param string $fileName
-	 * @return void
-	 */
+     * @param null|string $fileName
+     * @param int $quality
+     * @return void
+     */
 	public function save($fileName = null, $quality = 100)
 	{
 		$this->_execute($fileName ? $fileName : $this->_fileName, $quality);
@@ -415,7 +421,7 @@ class Image
 
 	/**
 	 * @param int $quality
-	 * @return int
+	 * @return int|null
 	 */
 	protected function _getQuality($quality)
 	{
@@ -427,5 +433,7 @@ class Image
 			case 'png':
 		        return (int)($quality/10 - 1);
 		}
+
+        return null;
 	}
 }
