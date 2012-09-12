@@ -50,6 +50,7 @@ class Image
 	 * @var array
 	 */
 	protected $errors = array(
+		'NotLoaded'         => 'No image was loaded',
 		'NotExists'         => 'The file %s does not exist',
 		'NotReadable'       => 'The file %s is not readable',
 		'Format'            => 'Unknown image format: %s',
@@ -94,7 +95,8 @@ class Image
      */
 	public function __construct($fileName = null)
 	{
-		$this->setSourceImage($fileName);
+        if(!is_null($fileName))
+		    $this->setSourceImage($fileName);
 	}
 
 	/**
@@ -105,6 +107,9 @@ class Image
 	 */
 	public function resize($width = null, $height = null, $mode = self::RESIZE_TYPE_CROP)
 	{
+        if(!$this->sourceImage)
+            $this->error('NotLoaded');
+
 		list($width, $height)   = $this->calcDefaultDimensions($width, $height);
         $cropAfter              = false;
         $cropDimensions         = array();
@@ -155,6 +160,9 @@ class Image
 	 */
 	public function crop($x = 0, $y = 0, $width = null, $height = null)
 	{
+        if(!$this->sourceImage)
+            $this->error('NotLoaded');
+
 		if($width > $this->originalSize[0] || $height > $this->originalSize[1])
 			$this->error('CropDimExceed');
 
@@ -175,6 +183,9 @@ class Image
 	 */
 	public function cropFromCenter($width, $height)
 	{
+        if(!$this->sourceImage)
+            $this->error('NotLoaded');
+
 		$x = (int)(($this->originalSize[0] - $width) / 2);
 		$y = (int)(($this->originalSize[1] - $height) / 2);
 
@@ -198,6 +209,9 @@ class Image
 	 */
 	public function watermark($fileName, $position = self::WM_POS_BOTTOM_RIGHT, $width = null, $height = null)
 	{
+        if(!$this->sourceImage)
+            $this->error('NotLoaded');
+
 		$watermark = new Image($fileName);
 		if($width || $height)
 			$watermark->resize($width, $height, self::RESIZE_TYPE_STRICT);
@@ -244,6 +258,9 @@ class Image
 	 */
 	public function getSourceImage()
 	{
+        if(!$this->sourceImage)
+            $this->error('NotLoaded');
+
 		return $this->sourceImage;
 	}
 
@@ -278,6 +295,9 @@ class Image
 	 */
 	public function getWorkingImage()
 	{
+        if(!$this->sourceImage)
+            $this->error('NotLoaded');
+
 		return $this->workingImage;
 	}
 
@@ -298,6 +318,9 @@ class Image
 	 */
 	public function getWidth()
 	{
+        if(!$this->sourceImage)
+            $this->error('NotLoaded');
+
 		return $this->originalSize[0];
 	}
 
@@ -306,6 +329,9 @@ class Image
 	 */
 	public function getHeight()
 	{
+        if(!$this->sourceImage)
+            $this->error('NotLoaded');
+
 		return $this->originalSize[1];
 	}
 
@@ -423,6 +449,9 @@ class Image
 	 */
 	public function render($name = '', $quality = 100)
 	{
+        if(!$this->sourceImage)
+            $this->error('NotLoaded');
+
 		$this->sendHeaders($name);
 		$this->execute(null, $quality);
 
@@ -437,6 +466,9 @@ class Image
      */
 	public function save($fileName = null, $quality = 100)
 	{
+        if(!$this->sourceImage)
+            $this->error('NotLoaded');
+
 		$this->execute($fileName ? $fileName : $this->fileName, $quality);
 	}
 
