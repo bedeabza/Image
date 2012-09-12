@@ -4,9 +4,9 @@
  *
  * This class provides basic functionality for image manipulation using the GD library
  *
- * @category	Bedeabza
- * @package		Default
- * @author 		Dragos Badea	<bedeabza@gmail.com>
+ * @category    Bedeabza
+ * @package	    Default
+ * @author 	    Dragos Badea	<bedeabza@gmail.com>
  */
 
 namespace Bedeabza;
