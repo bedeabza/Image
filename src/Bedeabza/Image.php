@@ -44,12 +44,12 @@ class Image
      *
      * @var int
 	 */
-	protected $_watermarkOffset = 15;
+	protected $watermarkOffset = 15;
 
 	/**
 	 * @var array
 	 */
-	protected $_errors = array(
+	protected $errors = array(
 		'NotExists'         => 'The file %s does not exist',
 		'NotReadable'       => 'The file %s is not readable',
 		'Format'            => 'Unknown image format: %s',
@@ -61,32 +61,32 @@ class Image
 	/**
 	 * @var string
 	 */
-	protected $_fileName = null;
+	protected $fileName = null;
 
 	/**
 	 * @var string
 	 */
-	protected $_format = null;
+	protected $format = null;
 
 	/**
 	 * @var array
 	 */
-	protected $_acceptedFormats = array('png','gif','jpeg');
+	protected $acceptedFormats = array('png','gif','jpeg');
 
 	/**
 	 * @var resource
 	 */
-	protected $_sourceImage = null;
+	protected $sourceImage = null;
 
 	/**
 	 * @var resource
 	 */
-	protected $_workingImage = null;
+	protected $workingImage = null;
 
 	/**
 	 * @var array
 	 */
-	protected $_originalSize = null;
+	protected $originalSize = null;
 
 	/**
      * @param string|null $fileName
@@ -111,15 +111,15 @@ class Image
         if(!is_readable($fileName))
             $this->error('NotReadable', $fileName);
 
-        $this->_originalSize    = getimagesize($fileName);
-        $this->_format          = array_pop(explode('/', $this->_originalSize['mime']));
+        $this->originalSize    = getimagesize($fileName);
+        $this->format          = array_pop(explode('/', $this->originalSize['mime']));
 
-        if(!in_array($this->_format, $this->_acceptedFormats))
-            $this->error('Format', $this->_format);
+        if(!in_array($this->format, $this->acceptedFormats))
+            $this->error('Format', $this->format);
 
-        $this->_fileName        = $fileName;
-        $this->_sourceImage     = $this->_createImageFromFile();
-        $this->_workingImage    = $this->_createImageFromFile();
+        $this->fileName        = $fileName;
+        $this->sourceImage     = $this->createImageFromFile();
+        $this->workingImage    = $this->createImageFromFile();
     }
 
 	/**
@@ -130,19 +130,19 @@ class Image
 	 */
 	public function resize($width = null, $height = null, $mode = self::RESIZE_TYPE_CROP)
 	{
-		list($width, $height)   = $this->_calcDefaultDimensions($width, $height);
+		list($width, $height)   = $this->calcDefaultDimensions($width, $height);
         $cropAfter              = false;
         $cropDimensions         = array();
 
 		if($mode != self::RESIZE_TYPE_STRICT){
 			//recalculate width and height if they exceed original dimensions
-			if($width > $this->_originalSize[0] || $height > $this->_originalSize[1]){
-				$width = $this->_originalSize[0];
-				$height = $this->_originalSize[1];
+			if($width > $this->originalSize[0] || $height > $this->originalSize[1]){
+				$width = $this->originalSize[0];
+				$height = $this->originalSize[1];
 			}
 
 			//reclaculate to preserve aspect ratio
-			if($width/$height != $this->_originalSize[0]/$this->_originalSize[1]){
+			if($width/$height != $this->originalSize[0]/$this->originalSize[1]){
 				//mark for cropping
 				if($mode == self::RESIZE_TYPE_CROP){
 					$cropAfter = true;
@@ -150,22 +150,22 @@ class Image
 				}
 
 				if(
-					($width/$this->_originalSize[0] > $height/$this->_originalSize[1] && $mode == self::RESIZE_TYPE_RATIO) ||
-					($width/$this->_originalSize[0] < $height/$this->_originalSize[1] && $mode == self::RESIZE_TYPE_CROP)
+					($width/$this->originalSize[0] > $height/$this->originalSize[1] && $mode == self::RESIZE_TYPE_RATIO) ||
+					($width/$this->originalSize[0] < $height/$this->originalSize[1] && $mode == self::RESIZE_TYPE_CROP)
 				){
-					$width = $height/$this->_originalSize[1]*$this->_originalSize[0];
+					$width = $height/$this->originalSize[1]*$this->originalSize[0];
 				}else{
-					$height = $width/$this->_originalSize[0]*$this->_originalSize[1];
+					$height = $width/$this->originalSize[0]*$this->originalSize[1];
 				}
 			}
 		}
 
 		//create new image
-		$this->_workingImage = $this->_createImage($width, $height);
+		$this->workingImage = $this->createImage($width, $height);
 
 		//move the pixels from source to new image
-		imagecopyresampled($this->_workingImage, $this->_sourceImage, 0, 0, 0, 0, $width, $height, $this->_originalSize[0], $this->_originalSize[1]);
-		$this->_replaceAndReset($width, $height);
+		imagecopyresampled($this->workingImage, $this->sourceImage, 0, 0, 0, 0, $width, $height, $this->originalSize[0], $this->originalSize[1]);
+		$this->replaceAndReset($width, $height);
 
 		if($cropAfter)
 			$this->cropFromCenter($cropDimensions[0], $cropDimensions[1]);
@@ -180,17 +180,17 @@ class Image
 	 */
 	public function crop($x = 0, $y = 0, $width = null, $height = null)
 	{
-		if($width > $this->_originalSize[0] || $height > $this->_originalSize[1])
+		if($width > $this->originalSize[0] || $height > $this->originalSize[1])
 			$this->error('CropDimExceed');
 
-		list($width, $height) = $this->_calcDefaultDimensions($width, $height);
+		list($width, $height) = $this->calcDefaultDimensions($width, $height);
 
 		//create new image
-		$this->_workingImage = $this->_createImage($width, $height);
+		$this->workingImage = $this->createImage($width, $height);
 
 		//move the pixels from source to new image
-		imagecopyresampled($this->_workingImage, $this->_sourceImage, 0, 0, $x, $y, $width, $height, $width, $height);
-		$this->_replaceAndReset($width, $height);
+		imagecopyresampled($this->workingImage, $this->sourceImage, 0, 0, $x, $y, $width, $height, $width, $height);
+		$this->replaceAndReset($width, $height);
 	}
 
 	/**
@@ -200,8 +200,8 @@ class Image
 	 */
 	public function cropFromCenter($width, $height)
 	{
-		$x = (int)(($this->_originalSize[0] - $width) / 2);
-		$y = (int)(($this->_originalSize[1] - $height) / 2);
+		$x = (int)(($this->originalSize[0] - $width) / 2);
+		$y = (int)(($this->originalSize[1] - $height) / 2);
 
 		$this->crop($x, $y, $width, $height);
 	}
@@ -211,7 +211,7 @@ class Image
      */
     public function setWatermarkOffset($offset)
     {
-        $this->_watermarkOffset = (int)$offset;
+        $this->watermarkOffset = (int)$offset;
     }
 
 	/**
@@ -227,28 +227,28 @@ class Image
 		if($width || $height)
 			$watermark->resize($width, $height, self::RESIZE_TYPE_STRICT);
 
-		$this->_workingImage = $this->_createImage($this->_originalSize[0], $this->_originalSize[1]);
-		imagealphablending($this->_workingImage, true);
+		$this->workingImage = $this->createImage($this->originalSize[0], $this->originalSize[1]);
+		imagealphablending($this->workingImage, true);
 
 		switch($position){
 			case self::WM_POS_TOP_LEFT:
-		        $x = $y = $this->_watermarkOffset;
+		        $x = $y = $this->watermarkOffset;
 		        break;
 			case self::WM_POS_TOP_RIGHT:
-				$x = $this->_originalSize[0] - $watermark->getWidth() - $this->_watermarkOffset;
-		        $y = $this->_watermarkOffset;
+				$x = $this->originalSize[0] - $watermark->getWidth() - $this->watermarkOffset;
+		        $y = $this->watermarkOffset;
 		        break;
 			case self::WM_POS_BOTTOM_RIGHT:
-		        $x = $this->_originalSize[0] - $watermark->getWidth() - $this->_watermarkOffset;
-		        $y = $this->_originalSize[1] - $watermark->getHeight() - $this->_watermarkOffset;
+		        $x = $this->originalSize[0] - $watermark->getWidth() - $this->watermarkOffset;
+		        $y = $this->originalSize[1] - $watermark->getHeight() - $this->watermarkOffset;
 		        break;
 			case self::WM_POS_BOTTOM_LEFT:
-				$x = $y = $this->_watermarkOffset;
-		        $y = $this->_originalSize[1] - $watermark->getHeight() - $this->_watermarkOffset;
+				$x = $y = $this->watermarkOffset;
+		        $y = $this->originalSize[1] - $watermark->getHeight() - $this->watermarkOffset;
 		        break;
 			case self::WM_POS_CENTER:
-		        $x = ($this->_originalSize[0] - $watermark->getWidth()) / 2;
-		        $y = ($this->_originalSize[1] - $watermark->getHeight()) / 2;
+		        $x = ($this->originalSize[0] - $watermark->getWidth()) / 2;
+		        $y = ($this->originalSize[1] - $watermark->getHeight()) / 2;
 		        break;
             default:
                 $x = 0;
@@ -256,10 +256,10 @@ class Image
                 break;
 		}
 
-		imagecopy($this->_workingImage, $this->_sourceImage, 0, 0, 0, 0, $this->_originalSize[0], $this->_originalSize[1]);
-		imagecopy($this->_workingImage, $watermark->getSourceImage(), $x, $y, 0, 0, $watermark->getWidth(), $watermark->getHeight());
+		imagecopy($this->workingImage, $this->sourceImage, 0, 0, 0, 0, $this->originalSize[0], $this->originalSize[1]);
+		imagecopy($this->workingImage, $watermark->getSourceImage(), $x, $y, 0, 0, $watermark->getWidth(), $watermark->getHeight());
 
-		$this->_replaceAndReset($this->_originalSize[0], $this->_originalSize[1]);
+		$this->replaceAndReset($this->originalSize[0], $this->originalSize[1]);
 
 		$watermark->destroy();
 	}
@@ -269,7 +269,7 @@ class Image
 	 */
 	public function getSourceImage()
 	{
-		return $this->_sourceImage;
+		return $this->sourceImage;
 	}
 
 	/**
@@ -277,7 +277,7 @@ class Image
 	 */
 	public function getWorkingImage()
 	{
-		return $this->_workingImage;
+		return $this->workingImage;
 	}
 
 	/**
@@ -285,7 +285,7 @@ class Image
 	 */
 	public function getWidth()
 	{
-		return $this->_originalSize[0];
+		return $this->originalSize[0];
 	}
 
 	/**
@@ -293,7 +293,7 @@ class Image
 	 */
 	public function getHeight()
 	{
-		return $this->_originalSize[1];
+		return $this->originalSize[1];
 	}
 
 	/**
@@ -301,17 +301,17 @@ class Image
 	 * @param int $height
 	 * @return array
 	 */
-	protected function _calcDefaultDimensions($width = null, $height = null)
+	protected function calcDefaultDimensions($width = null, $height = null)
 	{
 		if(!$width && !$height)
 			$this->error('WidthHeight');
 
 		//autocalculate width and height if one of them is missing
 		if(!$width)
-			$width = $height/$this->_originalSize[1]*$this->_originalSize[0];
+			$width = $height/$this->originalSize[1]*$this->originalSize[0];
 
 		if(!$height)
-			$height = $width/$this->_originalSize[0]*$this->_originalSize[1];
+			$height = $width/$this->originalSize[0]*$this->originalSize[1];
 
 		return array($width, $height);
 	}
@@ -319,10 +319,10 @@ class Image
 	/**
 	 * @return resource
 	 */
-	protected function _createImageFromFile()
+	protected function createImageFromFile()
 	{
-		$function = 'imagecreatefrom'.$this->_format;
-		return $function($this->_fileName);
+		$function = 'imagecreatefrom'.$this->format;
+		return $function($this->fileName);
 	}
 
 	/**
@@ -330,13 +330,13 @@ class Image
 	 * @param int $height
 	 * @return resource
 	 */
-	protected function _createImage($width, $height)
+	protected function createImage($width, $height)
 	{
 		$function = function_exists('imagecreatetruecolor') ? 'imagecreatetruecolor' : 'imagecreate';
 		$image = $function($width, $height);
 
 		//special conditions for png transparence
-		if($this->_format == 'png'){
+		if($this->format == 'png'){
 			imagealphablending($image, false);
 			imagesavealpha($image, true);
 			imagefilledrectangle($image, 0, 0, $width, $height, imagecolorallocatealpha($image, 255, 255, 255, 127));
@@ -350,15 +350,15 @@ class Image
 	 * @param int $height
 	 * @return void
 	 */
-	protected function _replaceAndReset($width, $height)
+	protected function replaceAndReset($width, $height)
 	{
-		$this->_sourceImage = $this->_createImage($width, $height);
-		imagecopy($this->_sourceImage, $this->_workingImage, 0, 0, 0, 0, $width, $height);
-		imagedestroy($this->_workingImage);
-		$this->_workingImage = null;
+		$this->sourceImage = $this->createImage($width, $height);
+		imagecopy($this->sourceImage, $this->workingImage, 0, 0, 0, 0, $width, $height);
+		imagedestroy($this->workingImage);
+		$this->workingImage = null;
 
-		$this->_originalSize[0] = $width;
-		$this->_originalSize[1] = $height;
+		$this->originalSize[0] = $width;
+		$this->originalSize[1] = $height;
 	}
 
 	/**
@@ -372,7 +372,7 @@ class Image
 		if(!is_array($params))
 			$params = array($params);
 
-		throw new ImageException(vsprintf($this->_errors[$code], $params));
+		throw new ImageException(vsprintf($this->errors[$code], $params));
 	}
 
 	/**
@@ -380,10 +380,10 @@ class Image
 	 */
 	public function destroy()
 	{
-		if($this->_workingImage)
-			imagedestroy($this->_workingImage);
-		if($this->_sourceImage)
-			imagedestroy($this->_sourceImage);
+		if($this->workingImage)
+			imagedestroy($this->workingImage);
+		if($this->sourceImage)
+			imagedestroy($this->sourceImage);
 	}
 
 	/**
@@ -394,7 +394,7 @@ class Image
 	 */
 	public function sendHeaders($name = '', $expires = 0, $lastMod = null)
 	{
-		header('Content-type: image/'.$this->_format);
+		header('Content-type: image/'.$this->format);
 		header("Content-Disposition: inline".($name ? "; filename=".$name : ''));
 		header('Last-Modified: ' . gmdate('D, d M Y H:i:s', ($lastMod ? $lastMod : time())) . ' GMT');
 		header("Cache-Control: maxage={$expires}");
@@ -411,7 +411,7 @@ class Image
 	public function render($name = '', $quality = 100)
 	{
 		$this->sendHeaders($name);
-		$this->_execute(null, $quality);
+		$this->execute(null, $quality);
 
 		$this->destroy();
 		die;
@@ -424,7 +424,7 @@ class Image
      */
 	public function save($fileName = null, $quality = 100)
 	{
-		$this->_execute($fileName ? $fileName : $this->_fileName, $quality);
+		$this->execute($fileName ? $fileName : $this->fileName, $quality);
 	}
 
 	/**
@@ -432,19 +432,19 @@ class Image
 	 * @param int $quality
 	 * @return void
 	 */
-	protected function _execute($fileName = null, $quality = 75)
+	protected function execute($fileName = null, $quality = 75)
 	{
-		$function = 'image'.$this->_format;
-		$function($this->_sourceImage, $fileName, $this->_getQuality($quality));
+		$function = 'image'.$this->format;
+		$function($this->sourceImage, $fileName, $this->getQuality($quality));
 	}
 
 	/**
 	 * @param int $quality
 	 * @return int|null
 	 */
-	protected function _getQuality($quality)
+	protected function getQuality($quality)
 	{
-		switch($this->_format){
+		switch($this->format){
 			case 'gif':
 		        return null;
 			case 'jpeg':
