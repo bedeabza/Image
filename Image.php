@@ -11,6 +11,8 @@
 
 namespace Bedeabza;
 
+require 'Exception.php';
+
 use \Bedeabza\Image\Exception as ImageException;
 
 class Image
