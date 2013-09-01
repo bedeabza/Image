@@ -1,0 +1,23 @@
+{
+    "name": "bedeabza/Image",
+    "type": "library",
+    "description": "Bedeabze image class",
+    "keywords": [
+        "image",
+        "cropping",
+        "rezise",
+        "GD"
+    ],
+    "authors": [
+        {
+            "name": "Dragos Badea",
+            "email": "bedeabza@gmail.com"
+        }
+    ],
+    "require": {
+        "php": ">=5.3.3"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "3.7.*@dev"
+    }
+}
